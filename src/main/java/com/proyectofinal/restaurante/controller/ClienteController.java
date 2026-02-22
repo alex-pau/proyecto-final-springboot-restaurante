@@ -52,7 +52,7 @@ public class ClienteController {
         cliente.setTelefono(clienteDto.getTelefono());
         cliente.setEmail(clienteDto.getEmail());
         clienteService.save(cliente);
-        return new ResponseEntity<>(new Mensaje("cliente registrado"), HttpStatus.CREATED);
+        return new ResponseEntity<>(cliente, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
@@ -73,7 +73,7 @@ public class ClienteController {
         cliente.setTelefono(clienteDto.getTelefono());
         cliente.setEmail(clienteDto.getEmail());
         clienteService.save(cliente);
-        return new ResponseEntity<>(new Mensaje("cliente actualizado"), HttpStatus.OK);
+        return new ResponseEntity<>(cliente, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

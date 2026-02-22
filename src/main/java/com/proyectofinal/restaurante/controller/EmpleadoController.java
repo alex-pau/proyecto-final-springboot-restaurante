@@ -46,7 +46,7 @@ public class EmpleadoController {
         empleado.setApellido(empleadoDto.getApellido());
         empleado.setCargo(empleadoDto.getCargo());
         empleadoService.save(empleado);
-        return new ResponseEntity<>(new Mensaje("empleado registrado"), HttpStatus.CREATED);
+        return new ResponseEntity<>(empleado, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
@@ -63,7 +63,7 @@ public class EmpleadoController {
         empleado.setApellido(empleadoDto.getApellido());
         empleado.setCargo(empleadoDto.getCargo());
         empleadoService.save(empleado);
-        return new ResponseEntity<>(new Mensaje("empleado actualizado"), HttpStatus.OK);
+        return new ResponseEntity<>(empleado, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

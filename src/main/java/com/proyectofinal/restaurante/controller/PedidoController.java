@@ -2,6 +2,8 @@ package com.proyectofinal.restaurante.controller;
 
 import com.proyectofinal.restaurante.dto.Mensaje;
 import com.proyectofinal.restaurante.dto.PedidoDto;
+import com.proyectofinal.restaurante.dto.TicketDto;
+import com.proyectofinal.restaurante.dto.TicketLineaDto;
 import com.proyectofinal.restaurante.entity.Cliente;
 import com.proyectofinal.restaurante.entity.Empleado;
 import com.proyectofinal.restaurante.entity.Mesa;
@@ -54,7 +56,7 @@ public class PedidoController {
         return new ResponseEntity<>(pedidos, HttpStatus.OK);
     }
 
-    // CASO DE USO: Crear pedido + asignar mesa + asignar empleado a cliente
+    //crear pedido, asignar mesa, asignar empleado a cliente
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody PedidoDto pedidoDto) {
         if (pedidoDto.getClienteId() == null)
@@ -77,7 +79,6 @@ public class PedidoController {
         Cliente cliente = clienteService.getOne(pedidoDto.getClienteId()).get();
         Empleado empleado = empleadoService.getOne(pedidoDto.getEmpleadoId()).get();
 
-        // Marcamos la mesa como ocupada
         mesa.setOcupada(true);
         mesaService.save(mesa);
 
@@ -90,10 +91,9 @@ public class PedidoController {
         pedido.setTotal(0.0);
         pedidoService.save(pedido);
 
-        return new ResponseEntity<>(new Mensaje("pedido creado"), HttpStatus.CREATED);
+        return new ResponseEntity<>(pedido, HttpStatus.CREATED);
     }
 
-    // CASO DE USO: Cerrar cuenta
     @PutMapping("/cerrar/{id}")
     public ResponseEntity<?> cerrarCuenta(@PathVariable("id") long id) {
         if (!pedidoService.existsById(id))
@@ -104,7 +104,6 @@ public class PedidoController {
         if (pedido.getCerrado())
             return new ResponseEntity<>(new Mensaje("el pedido ya está cerrado"), HttpStatus.BAD_REQUEST);
 
-        // Calculamos el total sumando todos los detalles
         double total = pedido.getDetalles().stream()
                 .mapToDouble(d -> d.getCantidad() * d.getPrecioUnitario())
                 .sum();
@@ -112,7 +111,6 @@ public class PedidoController {
         pedido.setTotal(total);
         pedido.setCerrado(true);
 
-        // Liberamos la mesa
         Mesa mesa = pedido.getMesa();
         mesa.setOcupada(false);
         mesaService.save(mesa);
@@ -121,7 +119,7 @@ public class PedidoController {
         return new ResponseEntity<>(pedido, HttpStatus.OK);
     }
 
-    // CASO DE USO: Generar ticket
+    //generar ticket
     @GetMapping("/ticket/{id}")
     public ResponseEntity<?> generarTicket(@PathVariable("id") long id) {
         if (!pedidoService.existsById(id))
@@ -132,7 +130,26 @@ public class PedidoController {
         if (!pedido.getCerrado())
             return new ResponseEntity<>(new Mensaje("el pedido aún no está cerrado"), HttpStatus.BAD_REQUEST);
 
-        return new ResponseEntity<>(pedido, HttpStatus.OK);
+        TicketDto ticket = new TicketDto();
+        ticket.setPedidoId(pedido.getId());
+        ticket.setFecha(pedido.getFecha());
+        ticket.setCliente(pedido.getCliente().getNombre() + " " + pedido.getCliente().getApellido());
+        ticket.setMesa("Mesa " + pedido.getMesa().getNumero());
+        ticket.setEmpleado(pedido.getEmpleado().getNombre() + " " + pedido.getEmpleado().getApellido());
+
+        List<TicketLineaDto> lineas = pedido.getDetalles().stream().map(d -> {
+            TicketLineaDto linea = new TicketLineaDto();
+            linea.setPlato(d.getPlato().getNombre());
+            linea.setCantidad(d.getCantidad());
+            linea.setPrecioUnitario(d.getPrecioUnitario());
+            linea.setSubtotal(d.getCantidad() * d.getPrecioUnitario());
+            return linea;
+        }).toList();
+
+        ticket.setLineas(lineas);
+        ticket.setTotal(pedido.getTotal());
+
+        return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

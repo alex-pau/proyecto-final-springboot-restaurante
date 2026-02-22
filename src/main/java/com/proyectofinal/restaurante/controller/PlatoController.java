@@ -51,7 +51,7 @@ public class PlatoController {
         plato.setPrecio(platoDto.getPrecio());
         plato.setImagenUrl(platoDto.getImagenUrl());
         platoService.save(plato);
-        return new ResponseEntity<>(new Mensaje("plato creado"), HttpStatus.CREATED);
+        return new ResponseEntity<>(plato, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")

@@ -28,10 +28,6 @@ public class PedidoService {
         return pedidoRepository.findByClienteId(clienteId);
     }
 
-    public Optional<Pedido> getPedidoAbierto(long id) {
-        return pedidoRepository.findByIdAndCerradoFalse(id);
-    }
-
     public void save(Pedido pedido) {
         pedidoRepository.save(pedido);
     }

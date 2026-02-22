@@ -49,7 +49,7 @@ public class DetallePedidoController {
         return new ResponseEntity<>(detalles, HttpStatus.OK);
     }
 
-    // CASO DE USO: Agregar plato al pedido
+    //añadir plato al pedido
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody DetallePedidoDto detalleDto) {
         if (detalleDto.getPedidoId() == null)
@@ -73,11 +73,10 @@ public class DetallePedidoController {
         detalle.setPedido(pedido);
         detalle.setPlato(plato);
         detalle.setCantidad(detalleDto.getCantidad());
-        // El precioUnitario se coge del plato en el momento del pedido
         detalle.setPrecioUnitario(plato.getPrecio());
         detallePedidoService.save(detalle);
 
-        return new ResponseEntity<>(new Mensaje("plato agregado al pedido"), HttpStatus.CREATED);
+        return new ResponseEntity<>(detalle, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
@@ -94,7 +93,7 @@ public class DetallePedidoController {
 
         detalle.setCantidad(detalleDto.getCantidad());
         detallePedidoService.save(detalle);
-        return new ResponseEntity<>(new Mensaje("detalle actualizado"), HttpStatus.OK);
+        return new ResponseEntity<>(detalle, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

@@ -43,9 +43,9 @@ public class MesaController {
         Mesa mesa = new Mesa();
         mesa.setNumero(mesaDto.getNumero());
         mesa.setCapacidad(mesaDto.getCapacidad());
-        mesa.setOcupada(false); // por defecto libre al crearla
+        mesa.setOcupada(false);
         mesaService.save(mesa);
-        return new ResponseEntity<>(new Mensaje("mesa creada"), HttpStatus.OK);
+        return new ResponseEntity<>(mesa, HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}")
@@ -62,7 +62,7 @@ public class MesaController {
         mesa.setNumero(mesaDto.getNumero());
         mesa.setCapacidad(mesaDto.getCapacidad());
         mesaService.save(mesa);
-        return new ResponseEntity<>(new Mensaje("mesa actualizada"), HttpStatus.OK);
+        return new ResponseEntity<>(mesa, HttpStatus.OK);
     }
 
     @PutMapping("/asignar/{id}")
