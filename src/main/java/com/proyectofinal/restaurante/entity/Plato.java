@@ -25,7 +25,7 @@ public class Plato {
     private Double precio;
 
     @Column(name = "imagen_url")
-    private String imagen;
+    private String imagenUrl;
 
     public Plato() {}
 }

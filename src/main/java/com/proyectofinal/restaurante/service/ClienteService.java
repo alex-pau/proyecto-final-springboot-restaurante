@@ -14,7 +14,7 @@ import java.util.Optional;
 public class ClienteService {
 
     @Autowired
-    private ClienteRepository clienteRepository;
+    ClienteRepository clienteRepository;
 
     public List<Cliente> list() {
         return clienteRepository.findAll();
@@ -22,6 +22,10 @@ public class ClienteService {
 
     public Optional<Cliente> getOne(long id) {
         return clienteRepository.findById(id);
+    }
+
+    public Optional<Cliente> getByEmail(String email) {
+        return clienteRepository.findByEmail(email);
     }
 
     public void save(Cliente cliente) {

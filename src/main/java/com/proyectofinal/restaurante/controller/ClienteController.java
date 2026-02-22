@@ -1,5 +1,6 @@
 package com.proyectofinal.restaurante.controller;
 
+
 import com.proyectofinal.restaurante.dto.ClienteDto;
 import com.proyectofinal.restaurante.dto.Mensaje;
 import com.proyectofinal.restaurante.entity.Cliente;
@@ -18,18 +19,20 @@ import java.util.List;
 public class ClienteController {
 
     @Autowired
-    private ClienteService clienteService;
+    ClienteService clienteService;
 
-    @GetMapping("/list")
+    @GetMapping("/lista")
     public ResponseEntity<List<Cliente>> list() {
-        return new ResponseEntity<>(clienteService.list(), HttpStatus.OK);
+        List<Cliente> list = clienteService.list();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<?> getOne(@PathVariable("id") long id) {
+    public ResponseEntity<?> getById(@PathVariable("id") long id) {
         if (!clienteService.existsById(id))
-            return new ResponseEntity<>(new Mensaje("cliente no encontrado"), HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(clienteService.getOne(id).get(), HttpStatus.OK);
+            return new ResponseEntity<>(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
+        Cliente cliente = clienteService.getOne(id).get();
+        return new ResponseEntity<>(cliente, HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -38,23 +41,45 @@ public class ClienteController {
             return new ResponseEntity<>(new Mensaje("el nombre es obligatorio"), HttpStatus.BAD_REQUEST);
         if (StringUtils.isBlank(clienteDto.getApellido()))
             return new ResponseEntity<>(new Mensaje("el apellido es obligatorio"), HttpStatus.BAD_REQUEST);
+        if (StringUtils.isBlank(clienteDto.getEmail()))
+            return new ResponseEntity<>(new Mensaje("el email es obligatorio"), HttpStatus.BAD_REQUEST);
         if (clienteService.existsByEmail(clienteDto.getEmail()))
-            return new ResponseEntity<>(new Mensaje("ese email ya está registrado"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Mensaje("el email ya está registrado"), HttpStatus.BAD_REQUEST);
 
         Cliente cliente = new Cliente();
         cliente.setNombre(clienteDto.getNombre());
         cliente.setApellido(clienteDto.getApellido());
         cliente.setTelefono(clienteDto.getTelefono());
         cliente.setEmail(clienteDto.getEmail());
-
         clienteService.save(cliente);
-        return new ResponseEntity<>(new Mensaje("cliente registrado correctamente"), HttpStatus.OK);
+        return new ResponseEntity<>(new Mensaje("cliente registrado"), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable("id") long id, @RequestBody ClienteDto clienteDto) {
+        if (!clienteService.existsById(id))
+            return new ResponseEntity<>(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
+        if (StringUtils.isBlank(clienteDto.getNombre()))
+            return new ResponseEntity<>(new Mensaje("el nombre es obligatorio"), HttpStatus.BAD_REQUEST);
+        if (StringUtils.isBlank(clienteDto.getEmail()))
+            return new ResponseEntity<>(new Mensaje("el email es obligatorio"), HttpStatus.BAD_REQUEST);
+        if (clienteService.existsByEmail(clienteDto.getEmail()) &&
+                clienteService.getByEmail(clienteDto.getEmail()).get().getId() != id)
+            return new ResponseEntity<>(new Mensaje("el email ya está registrado"), HttpStatus.BAD_REQUEST);
+
+        Cliente cliente = clienteService.getOne(id).get();
+        cliente.setNombre(clienteDto.getNombre());
+        cliente.setApellido(clienteDto.getApellido());
+        cliente.setTelefono(clienteDto.getTelefono());
+        cliente.setEmail(clienteDto.getEmail());
+        clienteService.save(cliente);
+        return new ResponseEntity<>(new Mensaje("cliente actualizado"), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") long id) {
         if (!clienteService.existsById(id))
-            return new ResponseEntity<>(new Mensaje("cliente no encontrado"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
         clienteService.delete(id);
         return new ResponseEntity<>(new Mensaje("cliente eliminado"), HttpStatus.OK);
     }

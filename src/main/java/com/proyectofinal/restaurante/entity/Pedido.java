@@ -25,6 +25,9 @@ public class Pedido {
     @Column(name = "cerrado")
     private Boolean cerrado;
 
+    @Column(name = "total")
+    private Double total;
+
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;

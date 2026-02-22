@@ -24,9 +24,5 @@ public class Empleado {
     @Column(name = "cargo")
     private String cargo;
 
-    @OneToOne
-    @JoinColumn(name = "mesa_id")
-    private Mesa mesa;
-
     public Empleado() {}
 }

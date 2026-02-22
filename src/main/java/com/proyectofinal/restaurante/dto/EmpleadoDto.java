@@ -6,23 +6,19 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClienteDto {
+public class EmpleadoDto {
 
     @NotBlank
     private String nombre;
     @NotBlank
     private String apellido;
-    @NotBlank
-    private String telefono;
-    @NotBlank
-    private String email;
+    private String cargo;
 
-    public ClienteDto() {}
+    public EmpleadoDto() {}
 
-    public ClienteDto(String nombre, String apellido, String telefono, String email) {
+    public EmpleadoDto(String nombre, String apellido, String cargo) {
         this.nombre = nombre;
         this.apellido = apellido;
-        this.telefono = telefono;
-        this.email = email;
+        this.cargo = cargo;
     }
 }
