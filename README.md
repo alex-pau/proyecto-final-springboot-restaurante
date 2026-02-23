@@ -65,8 +65,6 @@ spring.jpa.show-sql=true
 mvn spring-boot:run
 ```
 
-La API estará disponible en: `http://localhost:8080/api`
-
 La url base es: `http://localhost:8080`
 
 
