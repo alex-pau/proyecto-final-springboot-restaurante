@@ -65,20 +65,19 @@ spring.jpa.show-sql=true
 mvn spring-boot:run
 ```
 
-La url base es: `http://localhost:8080`
-
+La API estará disponible en: `http://localhost:8080`
 
 ### Orden recomendado para probar
 
 ```
-1. POST /api/empleado/create       → Crear empleados
-2. POST /api/mesa/create           → Crear mesas
-3. POST /api/plato/create          → Crear platos
-4. POST /api/cliente/create        → Registrar cliente
-5. POST /api/pedido/create         → Crear pedido (asigna mesa + empleado)
-6. POST /api/detalle/create        → Añadir platos al pedido
-7. PUT  /api/pedido/cerrar/{id}    → Cerrar cuenta
-8. GET  /api/pedido/ticket/{id}    → Generar ticket
+1. POST /empleado/create       → Crear empleados
+2. POST /mesa/create           → Crear mesas
+3. POST /plato/create          → Crear platos
+4. POST /cliente/create        → Registrar cliente
+5. POST /pedido/create         → Crear pedido (asigna mesa + empleado)
+6. POST /detalle/create        → Añadir platos al pedido
+7. PUT  /pedido/cerrar/{id}    → Cerrar cuenta
+8. GET  /pedido/ticket/{id}    → Generar ticket
 ```
 
 ---
@@ -113,22 +112,22 @@ src/main/java/com/proyectofinal/restaurante/
 
 Da de alta un nuevo cliente validando que nombre, apellido y email estén presentes y que el email no esté ya registrado.
 
-- **Endpoint:** `POST /api/cliente/create`
+- **Endpoint:** `POST /cliente/create`
 - **Validaciones:** campos obligatorios, email único
 
 ### CU-02 · Asignar mesa
 
 Una mesa se asigna automáticamente al crear el pedido (pasa a `ocupada = true`). También existe un endpoint manual para asignar o liberar mesas.
 
-- **Endpoint principal:** `PUT /api/mesa/asignar/{id}`
-- **Asignación automática en:** `POST /api/pedido/create`
+- **Endpoint principal:** `PUT /mesa/asignar/{id}`
+- **Asignación automática en:** `POST /pedido/create`
 - **Validación clave:** no se puede asignar una mesa ya ocupada
 
 ### CU-03 · Crear pedido
 
 Crea un pedido abierto vinculando cliente, mesa y empleado en un solo paso. La fecha se asigna automáticamente y la mesa queda marcada como ocupada.
 
-- **Endpoint:** `POST /api/pedido/create`
+- **Endpoint:** `POST /pedido/create`
 - **Body:** `clienteId`, `mesaId`, `empleadoId`
 - **Validaciones:** los tres IDs deben existir, la mesa debe estar libre
 
@@ -136,7 +135,7 @@ Crea un pedido abierto vinculando cliente, mesa y empleado en un solo paso. La f
 
 Añade una línea de detalle al pedido indicando el plato y la cantidad. El precio unitario se captura del plato en ese momento, protegiendo el pedido ante futuros cambios de precio.
 
-- **Endpoint:** `POST /api/detalle/create`
+- **Endpoint:** `POST /detalle/create`
 - **Body:** `pedidoId`, `platoId`, `cantidad`
 - **Validaciones:** cantidad > 0, pedido debe estar abierto
 
@@ -144,7 +143,7 @@ Añade una línea de detalle al pedido indicando el plato y la cantidad. El prec
 
 Cierra el pedido calculando el total como suma de `cantidad × precioUnitario` de cada línea. Libera automáticamente la mesa asociada.
 
-- **Endpoint:** `PUT /api/pedido/cerrar/{id}`
+- **Endpoint:** `PUT /pedido/cerrar/{id}`
 - **Validación:** el pedido no puede estar ya cerrado
 - **Efecto secundario:** la mesa queda libre automáticamente
 
@@ -152,7 +151,7 @@ Cierra el pedido calculando el total como suma de `cantidad × precioUnitario` d
 
 Devuelve un resumen completo del pedido cerrado: cliente, empleado, mesa, fecha, líneas de detalle con subtotales y total final.
 
-- **Endpoint:** `GET /api/pedido/ticket/{id}`
+- **Endpoint:** `GET /pedido/ticket/{id}`
 - **Validación:** el pedido debe estar cerrado
 - **Respuesta:** objeto `TicketDto` con lista de `TicketLineaDto`
 
@@ -161,14 +160,12 @@ Devuelve un resumen completo del pedido cerrado: cliente, empleado, mesa, fecha,
 La asignación se realiza al crear el pedido: el campo `empleadoId` vincula directamente al empleado (camarero) con el cliente a través del pedido. La entidad `Pedido` tiene una relación `@ManyToOne` con `Empleado`, garantizando la trazabilidad del servicio.
 
 - **Mecanismo:** campo `empleado` en la entidad `Pedido`
-- **Endpoint:** `POST /api/pedido/create` (incluye `empleadoId` en el body)
-- **Consulta:** `GET /api/pedido/cliente/{clienteId}` devuelve todos los pedidos con su empleado asignado
+- **Endpoint:** `POST /pedido/create` (incluye `empleadoId` en el body)
+- **Consulta:** `GET /pedido/cliente/{clienteId}` devuelve todos los pedidos con su empleado asignado
 
 ---
 
 ## 🔌 Endpoints principales
-
-> Prefijo base: `/api`
 
 ### Clientes — `/cliente`
 
