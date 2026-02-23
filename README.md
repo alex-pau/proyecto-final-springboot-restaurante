@@ -1,73 +1,96 @@
-# API REST para Control de Pedidos y Mesas de Restaurante
+# 🍽️ API REST — Control de Pedidos y Mesas de Restaurante
 
-API REST desarrollada con Spring Boot para la gestión integral de un restaurante: mesas, clientes, empleados, pedidos y platos.
-
----
-
-## Descripción del proyecto
-
-Este proyecto implementa una API REST que permite administrar el flujo completo de un restaurante en sala, desde el registro de clientes hasta la generación del ticket final. La arquitectura sigue un diseño por capas (Controladores, Servicios, Repositorios, Entidades) y cubre todos los casos de uso del negocio.
+API REST desarrollada con **Spring Boot** para la gestión integral de un restaurante: mesas, clientes, empleados, pedidos y platos.
 
 ---
 
-## Problema de negocio
+## 📋 Descripción del proyecto
+
+Este proyecto implementa una API REST que permite administrar el flujo completo de un restaurante en sala, desde el registro de clientes hasta la generación del ticket final.
+
+La arquitectura sigue un diseño por capas:
+
+```
+Controller → Service → Repository → Entity
+```
+
+Cubre todos los casos de uso del negocio: registrar clientes, asignar mesas, gestionar pedidos, agregar platos, cerrar cuenta y generar ticket.
+
+---
+
+## 🏪 Problema de negocio
 
 Un restaurante necesita una solución digital para gestionar sus operaciones en sala de forma eficiente. Los problemas concretos que resuelve esta API son:
 
-- Controlar qué mesas están ocupadas o libres en tiempo real.
-- Registrar clientes y asignarles un empleado responsable de su atención.
-- Gestionar pedidos abiertos y cerrados, vinculados a una mesa y un cliente.
-- Permitir añadir platos a un pedido activo, registrando el precio en el momento exacto del pedido para evitar inconsistencias si el precio cambia después.
-- Cerrar la cuenta calculando el total automáticamente y liberando la mesa.
-- Generar el ticket final con todos los detalles del pedido.
+- Controlar qué mesas están **ocupadas o libres** en tiempo real.
+- **Registrar clientes** y asignarles un empleado responsable de su atención.
+- Gestionar **pedidos abiertos y cerrados**, vinculados a una mesa y un cliente.
+- Permitir **añadir platos** a un pedido activo, registrando el precio en el momento exacto del pedido para evitar inconsistencias si el precio cambia después.
+- **Cerrar la cuenta** calculando el total automáticamente y liberando la mesa.
+- **Generar el ticket final** con todos los detalles del pedido.
 
 ---
 
-## Instrucciones de ejecución
+## ⚙️ Instrucciones de ejecución
 
 ### Requisitos previos
 
 - Java 17 o superior
 - Maven
-- MySQL
+- MySQL 8.x
 
 ### Configuración de la base de datos
 
-Crea la base de datos en MySQL:
+Crear la base de datos en MySQL:
 
 ```sql
 CREATE DATABASE proyectofinal_damb;
 ```
 
-Configura el archivo `src/main/resources/application.properties`:
+Ajustar credenciales en `src/main/resources/application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/proyectofinal_damb
-spring.datasource.username=tu_usuario
-spring.datasource.password=tu_contraseña
+spring.datasource.username=root
+spring.datasource.password=
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 ```
 
-### Ejecución
+> Las tablas se crean automáticamente al arrancar gracias a `ddl-auto=update`.
+
+### Arrancar la aplicación
 
 ```bash
 mvn spring-boot:run
 ```
 
-La API estará disponible en `http://localhost:8080`.
+La API estará disponible en: `http://localhost:8080`
+
+### Orden recomendado para probar
+
+```
+1. POST /empleado/create       → Crear empleados
+2. POST /mesa/create           → Crear mesas
+3. POST /plato/create          → Crear platos
+4. POST /cliente/create        → Registrar cliente
+5. POST /pedido/create         → Crear pedido (asigna mesa + empleado)
+6. POST /detalle/create        → Añadir platos al pedido
+7. PUT  /pedido/cerrar/{id}    → Cerrar cuenta
+8. GET  /pedido/ticket/{id}    → Generar ticket
+```
 
 ---
 
-## Arquitectura del proyecto
+## 🏗️ Arquitectura del proyecto
 
 ```
 src/main/java/com/proyectofinal/restaurante/
-├── controller/     # Controladores REST (endpoints)
-├── service/        # Lógica de negocio
-├── dao/            # Repositorios JPA
-├── entity/         # Entidades de base de datos
-└── dto/            # Objetos de transferencia de datos
+├── controller/     → Controladores REST (un fichero por entidad)
+├── service/        → Lógica de negocio y validaciones
+├── dao/            → Repositorios JPA (interfaces)
+├── entity/         → Entidades JPA mapeadas a tablas MySQL
+└── dto/            → Objetos de transferencia (entrada y salida)
 ```
 
 ### Entidades del sistema
@@ -83,19 +106,66 @@ src/main/java/com/proyectofinal/restaurante/
 
 ---
 
-## Flujo principal de uso
+## ✅ Casos de uso
 
-```
-1. POST /cliente/create          → Registrar cliente
-2. POST /pedido/create           → Crear pedido (asigna mesa + empleado automáticamente)
-3. POST /detalle/create          → Agregar platos al pedido
-4. PUT  /pedido/cerrar/{id}      → Cerrar cuenta (calcula total + libera mesa)
-5. GET  /pedido/ticket/{id}      → Obtener ticket del pedido cerrado
-```
+### CU-01 · Registrar cliente
+
+Da de alta un nuevo cliente validando que nombre, apellido y email estén presentes y que el email no esté ya registrado.
+
+- **Endpoint:** `POST /cliente/create`
+- **Validaciones:** campos obligatorios, email único
+
+### CU-02 · Asignar mesa
+
+Una mesa se asigna automáticamente al crear el pedido (pasa a `ocupada = true`). También existe un endpoint manual para asignar o liberar mesas.
+
+- **Endpoint principal:** `PUT /mesa/asignar/{id}`
+- **Asignación automática en:** `POST /pedido/create`
+- **Validación clave:** no se puede asignar una mesa ya ocupada
+
+### CU-03 · Crear pedido
+
+Crea un pedido abierto vinculando cliente, mesa y empleado en un solo paso. La fecha se asigna automáticamente y la mesa queda marcada como ocupada.
+
+- **Endpoint:** `POST /pedido/create`
+- **Body:** `clienteId`, `mesaId`, `empleadoId`
+- **Validaciones:** los tres IDs deben existir, la mesa debe estar libre
+
+### CU-04 · Agregar plato al pedido
+
+Añade una línea de detalle al pedido indicando el plato y la cantidad. El precio unitario se captura del plato en ese momento, protegiendo el pedido ante futuros cambios de precio.
+
+- **Endpoint:** `POST /detalle/create`
+- **Body:** `pedidoId`, `platoId`, `cantidad`
+- **Validaciones:** cantidad > 0, pedido debe estar abierto
+
+### CU-05 · Cerrar cuenta
+
+Cierra el pedido calculando el total como suma de `cantidad × precioUnitario` de cada línea. Libera automáticamente la mesa asociada.
+
+- **Endpoint:** `PUT /pedido/cerrar/{id}`
+- **Validación:** el pedido no puede estar ya cerrado
+- **Efecto secundario:** la mesa queda libre automáticamente
+
+### CU-06 · Generar ticket
+
+Devuelve un resumen completo del pedido cerrado: cliente, empleado, mesa, fecha, líneas de detalle con subtotales y total final.
+
+- **Endpoint:** `GET /pedido/ticket/{id}`
+- **Validación:** el pedido debe estar cerrado
+- **Respuesta:** objeto `TicketDto` con lista de `TicketLineaDto`
+
+### CU-07 · Asignar un empleado a un cliente
+
+La asignación se realiza al crear el pedido: el campo `empleadoId` vincula directamente al empleado (camarero) con el cliente a través del pedido. La entidad `Pedido` tiene una relación `@ManyToOne` con `Empleado`, garantizando la trazabilidad del servicio.
+
+- **Mecanismo:** campo `empleado` en la entidad `Pedido`
+- **Endpoint:** `POST /pedido/create` (incluye `empleadoId` en el body)
+- **Consulta:** `GET /pedido/cliente/{clienteId}` devuelve todos los pedidos con su empleado asignado
 
 ---
 
-## Endpoints principales
+## 🔌 Endpoints principales
 
 ### Clientes — `/cliente`
 
@@ -107,8 +177,8 @@ src/main/java/com/proyectofinal/restaurante/
 | PUT | `/cliente/update/{id}` | Actualizar datos de un cliente |
 | DELETE | `/cliente/delete/{id}` | Eliminar cliente |
 
-**Body para crear/actualizar:**
 ```json
+// Body crear/actualizar
 {
   "nombre": "Juan",
   "apellido": "García",
@@ -131,8 +201,8 @@ src/main/java/com/proyectofinal/restaurante/
 | PUT | `/mesa/liberar/{id}` | Marcar mesa como libre |
 | DELETE | `/mesa/delete/{id}` | Eliminar mesa |
 
-**Body para crear/actualizar:**
 ```json
+// Body crear/actualizar
 {
   "numero": 5,
   "capacidad": 4
@@ -151,8 +221,8 @@ src/main/java/com/proyectofinal/restaurante/
 | PUT | `/empleado/update/{id}` | Actualizar empleado |
 | DELETE | `/empleado/delete/{id}` | Eliminar empleado |
 
-**Body para crear/actualizar:**
 ```json
+// Body crear/actualizar
 {
   "nombre": "María",
   "apellido": "López",
@@ -172,8 +242,8 @@ src/main/java/com/proyectofinal/restaurante/
 | PUT | `/plato/update/{id}` | Actualizar plato |
 | DELETE | `/plato/delete/{id}` | Eliminar plato |
 
-**Body para crear/actualizar:**
 ```json
+// Body crear/actualizar
 {
   "nombre": "Paella Valenciana",
   "descripcion": "Paella tradicional con pollo y verduras",
@@ -196,8 +266,8 @@ src/main/java/com/proyectofinal/restaurante/
 | GET | `/pedido/ticket/{id}` | Generar ticket (solo pedidos cerrados) |
 | DELETE | `/pedido/delete/{id}` | Eliminar pedido |
 
-**Body para crear:**
 ```json
+// Body crear
 {
   "clienteId": 1,
   "mesaId": 3,
@@ -218,8 +288,8 @@ src/main/java/com/proyectofinal/restaurante/
 | PUT | `/detalle/update/{id}` | Actualizar cantidad de un detalle |
 | DELETE | `/detalle/delete/{id}` | Eliminar detalle |
 
-**Body para agregar plato:**
 ```json
+// Body agregar plato
 {
   "pedidoId": 1,
   "platoId": 4,
@@ -229,28 +299,41 @@ src/main/java/com/proyectofinal/restaurante/
 
 ---
 
-## Gestión de errores
+## ⚠️ Gestión de errores
 
-La API controla y responde correctamente ante situaciones como:
+La API controla y responde correctamente ante las siguientes situaciones:
 
-- Recursos inexistentes → `404 Not Found` con mensaje descriptivo
-- Datos incorrectos o incompletos → `400 Bad Request` con mensaje descriptivo
-- Operaciones no permitidas (añadir plato a pedido cerrado, asignar mesa ocupada, etc.) → `400 Bad Request`
+| Situación | Código HTTP |
+|---|---|
+| Recurso no encontrado | `404 Not Found` |
+| Campo obligatorio vacío | `400 Bad Request` |
+| Email o número de mesa duplicado | `400 Bad Request` |
+| Mesa ya ocupada al crear pedido | `400 Bad Request` |
+| Añadir plato a pedido cerrado | `400 Bad Request` |
+| Pedir ticket sin cerrar la cuenta | `400 Bad Request` |
+
+Todos los errores devuelven un JSON descriptivo:
+
+```json
+{
+  "mensaje": "la mesa ya está ocupada"
+}
+```
 
 ---
 
-## Tecnologías utilizadas
+## 🛠️ Tecnologías utilizadas
 
-- Java 17
-- Spring Boot
-- Spring Data JPA — persistencia y repositorios
-- Lombok — reducción de código boilerplate
-- MySQL — base de datos relacional
-- Apache Commons Lang — utilidades de validación de strings
-- Spring Data REST — exposición automática de repositorios
+- **Java 17**
+- **Spring Boot 3.x**
+- **Spring Data JPA** — persistencia y repositorios
+- **Lombok** — reducción de código boilerplate
+- **MySQL** — base de datos relacional
+- **Apache Commons Lang** — validación de strings con `StringUtils`
+- **Spring Data REST** — exposición automática de repositorios
 
 ---
 
-## Autor
+## 👤 Autor
 
-Alejandro Pau — DAM B
+**Alejandro Pau** — DAM B
