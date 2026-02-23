@@ -3,6 +3,7 @@ package com.proyectofinal.restaurante.controller;
 import com.proyectofinal.restaurante.dto.Mensaje;
 import com.proyectofinal.restaurante.dto.PlatoDto;
 import com.proyectofinal.restaurante.entity.Plato;
+import com.proyectofinal.restaurante.service.DetallePedidoService;
 import com.proyectofinal.restaurante.service.PlatoService;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class PlatoController {
 
     @Autowired
     PlatoService platoService;
+
+    @Autowired
+    DetallePedidoService detallePedidoService;
 
     @GetMapping("/lista")
     public ResponseEntity<List<Plato>> list() {
@@ -81,6 +85,9 @@ public class PlatoController {
     public ResponseEntity<?> delete(@PathVariable("id") long id) {
         if (!platoService.existsById(id))
             return new ResponseEntity<>(new Mensaje("no existe"), HttpStatus.NOT_FOUND);
+        if (detallePedidoService.existsByPlatoId(id))
+            return new ResponseEntity<>(new Mensaje("no se puede eliminar el plato porque tiene pedidos asociados"),
+                    HttpStatus.BAD_REQUEST);
         platoService.delete(id);
         return new ResponseEntity<>(new Mensaje("plato eliminado"), HttpStatus.OK);
     }

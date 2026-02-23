@@ -39,4 +39,8 @@ public class DetallePedidoService {
     public List<DetallePedido> getByPedidoId(Long pedidoId) {
         return detallePedidoRepository.findByPedidoId(pedidoId);
     }
+
+    public boolean existsByPlatoId(long platoId) {
+        return detallePedidoRepository.existsByPlatoId(platoId);
+    }
 }

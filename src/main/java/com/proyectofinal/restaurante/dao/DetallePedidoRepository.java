@@ -9,4 +9,7 @@ import java.util.List;
 @RepositoryRestResource
 public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Long> {
     List<DetallePedido> findByPedidoId(Long pedidoId);
+    //para comprobar si el plato se usa en algun pedido
+    boolean existsByPlatoId(Long platoId);
+
 }
