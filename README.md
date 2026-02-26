@@ -1,10 +1,10 @@
-# 🍽️ API REST — Control de Pedidos y Mesas de Restaurante
+# API REST — Control de Pedidos y Mesas de Restaurante
 
 API REST desarrollada con **Spring Boot** para la gestión integral de un restaurante: mesas, clientes, empleados, pedidos y platos.
 
 ---
 
-## 📋 Descripción del proyecto
+## Descripción del proyecto
 
 Este proyecto implementa una API REST que permite administrar el flujo completo de un restaurante en sala, desde el registro de clientes hasta la generación del ticket final.
 
@@ -18,7 +18,7 @@ Cubre todos los casos de uso del negocio: registrar clientes, asignar mesas, ges
 
 ---
 
-## 🏪 Problema de negocio
+## Problema de negocio
 
 Un restaurante necesita una solución digital para gestionar sus operaciones en sala de forma eficiente. Los problemas concretos que resuelve esta API son:
 
@@ -31,7 +31,7 @@ Un restaurante necesita una solución digital para gestionar sus operaciones en 
 
 ---
 
-## ⚙️ Instrucciones de ejecución
+## Instrucciones de ejecución
 
 ### Requisitos previos
 
@@ -82,7 +82,7 @@ La API estará disponible en: `http://localhost:8080`
 
 ---
 
-## 🏗️ Arquitectura del proyecto
+## Arquitectura del proyecto
 
 ```
 src/main/java/com/proyectofinal/restaurante/
@@ -106,7 +106,7 @@ src/main/java/com/proyectofinal/restaurante/
 
 ---
 
-## ✅ Casos de uso
+## Casos de uso
 
 ### CU-01 · Registrar cliente
 
@@ -165,7 +165,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-## 🔌 Endpoints principales
+## Endpoints principales
 
 ### Clientes — `/cliente`
 
@@ -299,7 +299,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-## ⚠️ Gestión de errores
+## Gestión de errores
 
 La API controla y responde correctamente ante las siguientes situaciones:
 
@@ -322,7 +322,7 @@ Todos los errores devuelven un JSON descriptivo:
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## Tecnologías utilizadas
 
 - **Java 17**
 - **Spring Boot 3.x**
@@ -334,6 +334,6 @@ Todos los errores devuelven un JSON descriptivo:
 
 ---
 
-## 👤 Autor
+## Autor
 
 **Alejandro Pau** — DAM B
