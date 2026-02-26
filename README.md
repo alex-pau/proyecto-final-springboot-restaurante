@@ -1,4 +1,4 @@
-# API REST — Control de Pedidos y Mesas de Restaurante
+# API REST — Control de Pedidos de Restaurante
 
 API REST desarrollada con **Spring Boot** para la gestión integral de un restaurante: mesas, clientes, empleados, pedidos y platos.
 
