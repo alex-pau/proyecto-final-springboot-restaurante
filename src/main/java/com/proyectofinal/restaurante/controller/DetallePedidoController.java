@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -50,33 +51,47 @@ public class DetallePedidoController {
     }
 
     //añadir plato al pedido
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody DetallePedidoDto detalleDto) {
-        if (detalleDto.getPedidoId() == null)
-            return new ResponseEntity<>(new Mensaje("el pedido es obligatorio"), HttpStatus.BAD_REQUEST);
-        if (detalleDto.getPlatoId() == null)
-            return new ResponseEntity<>(new Mensaje("el plato es obligatorio"), HttpStatus.BAD_REQUEST);
-        if (detalleDto.getCantidad() == null || detalleDto.getCantidad() <= 0)
-            return new ResponseEntity<>(new Mensaje("la cantidad debe ser mayor que 0"), HttpStatus.BAD_REQUEST);
-        if (!pedidoService.existsById(detalleDto.getPedidoId()))
-            return new ResponseEntity<>(new Mensaje("el pedido no existe"), HttpStatus.NOT_FOUND);
-        if (!platoService.existsById(detalleDto.getPlatoId()))
-            return new ResponseEntity<>(new Mensaje("el plato no existe"), HttpStatus.NOT_FOUND);
+    @PostMapping("/create/{pedidoId}")
+    public ResponseEntity<?> create(@PathVariable("pedidoId") long pedidoId,
+                                    @RequestBody List<DetallePedidoDto> detallesDto) {
 
-        Pedido pedido = pedidoService.getOne(detalleDto.getPedidoId()).get();
+        if (detallesDto == null || detallesDto.isEmpty())
+            return new ResponseEntity<>(new Mensaje("debes añadir al menos un plato"), HttpStatus.BAD_REQUEST);
+
+        if (!pedidoService.existsById(pedidoId))
+            return new ResponseEntity<>(new Mensaje("el pedido no existe"), HttpStatus.NOT_FOUND);
+
+        Pedido pedido = pedidoService.getOne(pedidoId).get();
+
         if (pedido.getCerrado())
             return new ResponseEntity<>(new Mensaje("el pedido ya está cerrado"), HttpStatus.BAD_REQUEST);
 
-        Plato plato = platoService.getOne(detalleDto.getPlatoId()).get();
+        List<DetallePedido> detallesGuardados = new ArrayList<>();
 
-        DetallePedido detalle = new DetallePedido();
-        detalle.setPedido(pedido);
-        detalle.setPlato(plato);
-        detalle.setCantidad(detalleDto.getCantidad());
-        detalle.setPrecioUnitario(plato.getPrecio());
-        detallePedidoService.save(detalle);
+        for (DetallePedidoDto dto : detallesDto) {
 
-        return new ResponseEntity<>(detalle, HttpStatus.CREATED);
+            if (dto.getPlatoId() == null)
+                return new ResponseEntity<>(new Mensaje("cada línea debe tener un plato"), HttpStatus.BAD_REQUEST);
+
+            if (dto.getCantidad() == null || dto.getCantidad() <= 0)
+                return new ResponseEntity<>(new Mensaje("la cantidad debe ser mayor que 0"), HttpStatus.BAD_REQUEST);
+
+            if (!platoService.existsById(dto.getPlatoId()))
+                return new ResponseEntity<>(new Mensaje("el plato con id " + dto.getPlatoId() + " no existe"), HttpStatus.NOT_FOUND);
+
+            Plato plato = platoService.getOne(dto.getPlatoId()).get();
+
+            DetallePedido detalle = new DetallePedido();
+            detalle.setPedido(pedido);
+            detalle.setPlato(plato);
+            detalle.setCantidad(dto.getCantidad());
+            detalle.setPrecioUnitario(plato.getPrecio());
+
+            detallePedidoService.save(detalle);
+            detallesGuardados.add(detalle);
+        }
+
+        return new ResponseEntity<>(detallesGuardados, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
