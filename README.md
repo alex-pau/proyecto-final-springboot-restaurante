@@ -167,7 +167,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ## Endpoints principales
 
-### Clientes — `/cliente`
+### Clientes - `/cliente`
 
 | Método | Endpoint | Descripción |
 |---|---|---|
@@ -189,7 +189,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-### Mesas — `/mesa`
+### Mesas - `/mesa`
 
 | Método | Endpoint | Descripción |
 |---|---|---|
@@ -211,7 +211,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-### Empleados — `/empleado`
+### Empleados - `/empleado`
 
 | Método | Endpoint | Descripción |
 |---|---|---|
@@ -232,7 +232,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-### Platos — `/plato`
+### Platos - `/plato`
 
 | Método | Endpoint | Descripción |
 |---|---|---|
@@ -254,7 +254,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-### Pedidos — `/pedido`
+### Pedidos - `/pedido`
 
 | Método | Endpoint | Descripción |
 |---|---|---|
@@ -277,7 +277,7 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 
 ---
 
-### Detalles de pedido — `/detalle`
+### Detalles de pedido - `/detalle`
 
 | Método | Endpoint | Descripción |
 |---|---|---|
@@ -326,14 +326,14 @@ Todos los errores devuelven un JSON descriptivo:
 
 - **Java 17**
 - **Spring Boot 3.x**
-- **Spring Data JPA** — persistencia y repositorios
-- **Lombok** — reducción de código boilerplate
-- **MySQL** — base de datos relacional
-- **Apache Commons Lang** — validación de strings con `StringUtils`
-- **Spring Data REST** — exposición automática de repositorios
+- **Spring Data JPA** - persistencia y repositorios
+- **Lombok** - reducción de código boilerplate
+- **MySQL** - base de datos relacional
+- **Apache Commons Lang** - validación de strings con `StringUtils`
+- **Spring Data REST** - exposición automática de repositorios
 
 ---
 
 ## Autor
 
-**Alejandro Pau** — DAM B
+**Alejandro Pau** - DAM B
