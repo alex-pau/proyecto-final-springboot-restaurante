@@ -125,11 +125,11 @@ Una mesa se asigna automáticamente al crear el pedido (pasa a `ocupada = true`)
 
 ### CU-03 · Crear pedido
 
-Crea un pedido abierto vinculando cliente, mesa y empleado en un solo paso. La fecha se asigna automáticamente y la mesa queda marcada como ocupada.
+Añade varias líneas de detalle al pedido en una sola petición, indicando los platos y sus cantidades. El precio unitario se captura del plato en ese momento, protegiendo el pedido ante futuros cambios de precio.
 
-- **Endpoint:** `POST /pedido/create`
-- **Body:** `clienteId`, `mesaId`, `empleadoId`
-- **Validaciones:** los tres IDs deben existir, la mesa debe estar libre
+- **Endpoint:** `POST /detalle/create/{pedidoId}`
+- **Body:** lista de objetos con `platoId` y `cantidad`
+- **Validaciones:** cantidad > 0, pedido debe estar abierto, todos los platos deben existir
 
 ### CU-04 · Agregar plato al pedido
 
@@ -284,17 +284,16 @@ La asignación se realiza al crear el pedido: el campo `empleadoId` vincula dire
 | GET | `/detalle/lista` | Listar todos los detalles |
 | GET | `/detalle/detail/{id}` | Obtener detalle por ID |
 | GET | `/detalle/porPedido/{pedidoId}` | Detalles de un pedido concreto |
-| POST | `/detalle/create` | Agregar plato al pedido |
+| POST | `/detalle/create/{pedidoId}` | Agregar platos al pedido |
 | PUT | `/detalle/update/{id}` | Actualizar cantidad de un detalle |
 | DELETE | `/detalle/delete/{id}` | Eliminar detalle |
-
 ```json
-// Body agregar plato
-{
-  "pedidoId": 1,
-  "platoId": 4,
-  "cantidad": 2
-}
+// Body agregar platos (el pedidoId va en la URL)
+[
+  { "platoId": 2, "cantidad": 10 },
+  { "platoId": 5, "cantidad": 4 },
+  { "platoId": 8, "cantidad": 5 }
+]
 ```
 
 ---
